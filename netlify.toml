@@ -1,0 +1,4 @@
+[build]
+installCommand = "yarn"
+command = "yarn run dev"
+publish = "."
