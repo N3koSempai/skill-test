@@ -34,8 +34,9 @@ function AccountReg(props) {
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
-  const verifyEmail=()=>{
-    return axios.post(serverUrl+"users/emailverify",{
+  const  verifyEmail = async()=>{
+    
+    const emailRespond = await axios.post(serverUrl+"users/emailverify",{
       email: email,
       locale: (localStorage.getItem('locale') || "Mn")
     }).then(response=>{
@@ -49,7 +50,10 @@ function AccountReg(props) {
         setMessage({style:'text-red-500',val:0,data:t("E-mail not verified!")})
       }
     });
+    console.log(emailRespond)
+    return emailRespond
   }
+  
   const register=()=>{
     
            form.validateFields()

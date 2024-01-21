@@ -45,14 +45,14 @@ class UserController {
         }
     };
 
-    // getUserByUserName = async (req, res, next) => {
-    //     try {
-    //         let user = await UserService.getUserByUserName(req.params.username)
-    //         res.send(user)
-    //     } catch (error) {
-    //         next(error)
-    //     }
-    // };
+    getUserByUserName = async (req, res, next) => {
+        try {
+            let user = await UserService.getUserByUserName(req.params.username)
+            res.send(user)
+        } catch (error) {
+            next(error)
+        }
+    };
 
     getCurrentUser = async (req, res, next) => {
         try {
@@ -108,6 +108,7 @@ class UserController {
         try {
             console.log("User called userLogin!!!!")
             const result = await UserService.userLogin(req.body)
+            console.log('finish userlogin search')
             res.send(result)
         } catch (error) {
             next(error)
@@ -120,7 +121,9 @@ class UserController {
             let password = req.body.password;
             const signup = await UserService.signUp(req.body)
             if (signup.response) {
+                console.log('before signup')
                 const result = await UserService.userLogin({email:req.body.email, password: password})
+                console.log('after signup')
                 res.send(result)
             } else {
                 res.send(signup)

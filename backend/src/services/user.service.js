@@ -74,6 +74,7 @@ class UserService {
         emailService.deliverEmail(email, subject, body)
         
         let prev = await EmailVerifyModel.findOne({email:email});
+        
         if (prev) {
             let result = await EmailVerifyModel.update({verify_code:verificationCode}, prev.id);
             if (!result) {
@@ -246,11 +247,14 @@ class UserService {
         }
         rawData.password = await this.hashPassword(rawData.password);
         let checker = await UserModel.findOne({email:rawData.email});
+        console.log(rawData)
         if (checker) {
             return {response:false, message:"This Email already in use", data:null}
         }
         //check email verification
+
         let verifier = await EmailVerifyModel.findOne({email:rawData.email});
+        
         if (!verifier) {
             return {response:false, message:"Please receive and resend the Email verification code.", data:null}
         }
@@ -288,6 +292,7 @@ class UserService {
     };
 
     static async userLogin(rawData) {
+        
         const check = this.checkValidation(rawData);
         if (!check) {
             return {response:false, message:"Send data validation error", data:null}
@@ -297,12 +302,14 @@ class UserService {
         if (!user) {
             return {response: false, message:"Unregistered user!", data:null}
         }
+        
         const isMatch = await bcrypt.compare(pass, user.password);
         if (!isMatch) {
             return {response:false, message:'Incorrect password!', data:null}
         }
 
         // user matched!
+        
         const secretKey = process.env.SECRET_JWT || "";
         const token = jwt.sign({ user_id: user.id.toString() }, secretKey, {
             expiresIn: '24h'
@@ -323,6 +330,7 @@ class UserService {
     };
 
     static async forgotPassword(rawData) {
+        
         if (!this.emailValidation(rawData.email)) {
             return {response:false, message:"Email validation failed.", data:null};
         }
@@ -330,6 +338,7 @@ class UserService {
         if (!user) {
             return {response:false, message:"Unregistered user.", data:false};
         }
+        console.log(`userid: ${user.id}`)
         const secretKey = process.env.SECRET_JWT || "";
         const token = jwt.sign({user_id:user.id.toString()}, secretKey, {
             expiresIn: '2h'

@@ -20,36 +20,44 @@ function LogIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("password");
 
-    const login = () => {
-        return form.validateFields()
-                .then((values) => {
-                  console.log("validateFile")
-                  axios.post(SERVER_URL + "users/login",{
-                    email:email,
-                    password:password
-                  }).then(response=>{
-                    if(response.data.response){
-                      
-                      // setMessage({style:'text-green-500',val:true,data:"Successful! Welcome to our site."});
-                      localStorage.setItem("userInfo", JSON.stringify(response.data.data.userInfo));
-                      localStorage.setItem("jwtToken", JSON.stringify(response.data.data.token));
-                      console.log(response.data.data)
-                      if(response.data.data.keyPair){
-                        localStorage.setItem("privateKey",wallet.decrypt(response.data.data.keyPair[0].privateKey));
-                        localStorage.setItem("publicKey",response.data.data.keyPair[0].publicKey);
-                      }
-                      openNotification('Successful','Welcome to our site.', true,goMain);
-                      setAuthToken(response.data.data.token);
-                    }
-                    else{
-                      openNotification('Login Failed',response.data.message,false);
-                      // setMessage({style:'text-red-500',val:false,data:"Login failed! "})
-                    }
-                  })
-                })
-                .catch((errorInfo) => {});
-    }
-
+    const login = async () => {
+        try {
+          const values = await form.validateFields();
+          console.log("validateFields");
+          
+          const response = await axios.post(SERVER_URL + "users/login", {
+            email: email,
+            password: password,
+          });
+      
+          if (response.data.response) {
+            console.log(response.data.data);
+            localStorage.setItem("userInfo", JSON.stringify(response.data.data.userInfo));
+            localStorage.setItem("jwtToken", JSON.stringify(response.data.data.token));
+      
+            if (response.data.data.keyPair) {
+              localStorage.setItem(
+                "privateKey",
+                wallet.decrypt(response.data.data.keyPair[0].privateKey)
+              );
+              localStorage.setItem("publicKey", response.data.data.keyPair[0].publicKey);
+            }
+      
+            openNotification("Successful", "Welcome to our site.", true, goMain);
+            setAuthToken(response.data.data.token);
+          } else {
+            openNotification("Login Failed", response.data.message, false);
+          }
+        } catch (error) {
+          if (error.name === 'ValidationError') {
+            // Handle validation errors here
+            console.error('Form validation failed: ', error.errors);
+          } else {
+            // Handle other errors like network issues or API failures
+            console.error('API request failed: ', error.response || error.request);
+          }
+        }
+      }
     const goMain=()=>{
         window.location.href="/admin";
     }

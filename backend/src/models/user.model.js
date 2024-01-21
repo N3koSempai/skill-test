@@ -23,14 +23,17 @@ class UserModel {
     }
 
     findOne = async (params) => {
+        console.log(`parámetros:  ${JSON.stringify(params)}`);
         try {
             const { columnSet, values } = multipleColumnSet(params)
-            
+            console.log(`${columnSet}, ${values}  `)
             const sql = `SELECT * FROM ${this.tableName}
             WHERE ${columnSet}`;
             const result = await query(sql, [...values]);
-
+            
             // return back the first row (user)
+            console.log('searching user')
+            
             return result[0];
         } catch(error) {
             return {error:error.sqlMessage};
